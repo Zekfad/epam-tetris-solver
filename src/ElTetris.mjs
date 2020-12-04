@@ -42,8 +42,8 @@ class ElTetris {
 		});
 	}
 	play(piece, pieces = globalPieces) {
-		let move = this.pickMove(piece),
-			lastMove = this.playMove(this.board, move.orientation, move.column);
+		let { orientation, column, orientationId, } = this.pickMove(piece),
+			lastMove = this.playMove(this.board, orientation, column, orientationId);
 
 		if (!lastMove.gameOver) {
 			this.rowsCompleted += lastMove.rowsRemoved;
@@ -51,14 +51,11 @@ class ElTetris {
 
 		return {
 			debug: {
-				move,
 				lastMove,
 				piece,
 			},
-			column       : move.column,
-			orientationId: piece
-				.map(props => props.orientation === move.orientation)
-				.indexOf(true),
+			orientationId,
+			column,
 			pieceId: pieces.indexOf(piece),
 		};
 	}
@@ -89,7 +86,7 @@ class ElTetris {
 			for (let j = 0; j < this.columns - piece[i].width + 1; j++) {
 				// Copy current board
 				let board = this.board.slice(),
-					lastMove = this.playMove(board, orientation, j);
+					lastMove = this.playMove(board, orientation, j, i);
 
 				if (!lastMove.gameOver) {
 					evaluation = this.evaluateBoard(lastMove, board);
@@ -104,8 +101,9 @@ class ElTetris {
 		}
 
 		return {
-			orientation: piece[bestOrientation].orientation,
-			column     : bestColumn,
+			orientation  : piece[bestOrientation].orientation,
+			column       : bestColumn,
+			orientationId: +bestOrientation,
 		};
 	}
 	/**
@@ -126,7 +124,15 @@ class ElTetris {
 			(features.getRowTransitions() * -3.2178882868487753) +
 			(features.getColumnTransitions() * -9.348695305445199) +
 			(features.getNumberOfHoles() * -7.899265427351652) +
-			(features.getWellSums() * -3.3855972247263626);
+			(features.getWellSums() * -3.3855972247263626) +
+			(lastMove.column / this.columns * 0.00000000001) + // Better choice is the right side
+			/* Disabled: Can't reproduce behaviour that this hack is required for.
+			(features.getLandingHeight(lastMove) > this.rows / 2 // If we're gonna lose, try to play closer to the mid
+				? (!lastMove.orientationId * 0.00000001) +
+					(-Math.abs(lastMove.column - (this.columns / 2)) * 0.00001)
+				: 0);
+			*/
+			0;
 	}
 
 	/**
@@ -137,7 +143,7 @@ class ElTetris {
 	 *
 	 * @returns `true` if play succeeded, `false` if game is over.
 	 */
-	playMove(board, piece, column) {
+	playMove(board, piece, column, orientationId) {
 		piece = this.movePiece(piece, column);
 
 		let placementRow = this.getPlacementRow(piece),
@@ -170,8 +176,10 @@ class ElTetris {
 		return {
 			gameOver     : false,
 			landingHeight: placementRow,
+			column,
 			piece,
 			rowsRemoved,
+			orientationId,
 		};
 	}
 	/**
