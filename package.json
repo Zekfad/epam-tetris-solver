@@ -1,0 +1,38 @@
+{
+	"private": true,
+	"type": "module",
+	"module": "./src/server.mjs",
+	"name": "@zekfad/epam-tetris-solver",
+	"version": "1.0.0",
+	"description": "EPAM Tetris challenge solution.",
+	"keywords": [
+		"tetris",
+		"nodejs",
+		"javascript",
+		"js",
+		"epam"
+	],
+	"homepage": "https://github.com/Zekfad/epam-tetris-solver",
+	"bugs": {
+		"url": "https://github.com/Zekfad/epam-tetris-solver/issues",
+		"email": "zekfad@znnme.eu.org"
+	},
+	"license": "AGPL-3.0",
+	"author": "Zekfad <zekfad@znnme.eu.org> (https://zekfad.znnme.eu.org)",
+	"repository": "github:Zekfad/epam-tetris-solver",
+	"scripts": {
+		"start": "node ./src/server.mjs",
+		"debug": "node --inspect-brk ./src/server.mjs"
+	},
+	"dependencies": {
+		"array2d": "^0.0.5",
+		"dotenv": "^8.2.0",
+		"ws": "^7.4.0"
+	},
+	"devDependencies": {
+		"@zekfad/eslint-config": "^1.0.0",
+		"babel-eslint": "^10.1.0",
+		"eslint": "^7.14.0",
+		"eslint-plugin-import": "^2.22.1"
+	}
+}
