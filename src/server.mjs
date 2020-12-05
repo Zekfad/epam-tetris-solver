@@ -1,6 +1,6 @@
 /**
 	@license
-	epam-etris-solver - Solution for EPAM Tetris challange.
+	epam-tetris-solver - Solution for EPAM Tetris challange.
 	Copyright (C) 2020  Yaroslav Vorobev (zekfad@znnme.eu.org)
 
 	This program is free software: you can redistribute it and/or modify
