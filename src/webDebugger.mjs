@@ -19,7 +19,6 @@
 
 /* eslint-env browser */
 import ElTetris from './ElTetris.mjs';
-//import { pieces, piecesMap, getPieceNameFromMap, } from './pieces.mjs';
 import Renderer from './renderer.mjs';
 
 
