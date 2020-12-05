@@ -6,14 +6,36 @@
 		<style>
 			body {
 				font-family: "Trebuchet MS", "Helvetica", "Arial",	"Verdana", "sans-serif";
-				font-size: 80%;
+				font-size: 16px;
+			}
+			pre {
+				white-space: pre-wrap;
+				word-wrap: break-word;
+				font-size: 16px;
+			}
+			.container {
+				display: flex;
+			}
+			#board, #log {
+				display: inline-block;
+			}
+			#log {
+				max-width: 50%;
 			}
 		</style>
+		<script>globalThis.module = {};</script>
+		<script src="https://cdn.jsdelivr.net/gh/deecewan/browser-util-inspect/index.js"></script>
+		<script>
+			globalThis.inspect = globalThis.module.exports;
+			delete globalThis.module;
+		</script>
+		<script src="https://cdn.jsdelivr.net/npm/ansi_up@4.0.4/ansi_up.min.js"></script>
 	</head>
 	<body>
-		<h1>El-Tetris</h1>
-		<div>
+		<h1>Debugger</h1>
+		<div class="container">
 			<canvas id="board" width="434" height="434"></canvas>
+			<pre id="log">Connecting...</pre>
 		</div>
 		<script type="module" src="./webDebugger.mjs"></script>
 	</body>

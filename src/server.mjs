@@ -27,9 +27,10 @@ import { piecesMap, } from './pieces.mjs';
 
 
 const
+	boardSize = { width: 18, height: 18, },
 	config = env.config().parsed,
 	api = new API(config.USER, config.TOKEN),
-	elTetris = new ElTetris(18, 18);
+	elTetris = new ElTetris(boardSize.width, boardSize.height);
 
 
 /* eslint-disable */
@@ -106,24 +107,29 @@ function computeCWRotationsCount(oldOrientation, newOrientation, totalOrientatio
 	return totalOrientations - i; // CCW to CW
 }
 
-api.on('data', ({
-	currentFigurePoint: {
-		x,
-		y,
-	},
-	currentFigureType,
-	layers,
-}) => {
-	let _y = 17 - y + offsetsMap[currentFigureType][0],
-		_x = x + offsetsMap[currentFigureType][1],
-		command = 'SKIP';
-
-	const { board, type, orientation, x: newX, } = parseData(layers[0], {
-		x: _x,
-		y: _y,
-
-		type: currentFigureType,
-	});
+api.on('data', data => {
+	const {
+			currentFigurePoint: {
+				x,
+				y,
+			},
+			currentFigureType,
+			layers,
+		} = data,
+		{
+			board,
+			type,
+			orientation,
+			x: newX,
+		} = parseData(
+			layers[0],
+			{
+				y   : (boardSize.height - 1) - y + offsetsMap[currentFigureType][0],
+				x   : x + offsetsMap[currentFigureType][1],
+				type: currentFigureType,
+			}
+		),
+		oldBoard = elTetris.dumpBoard();
 
 	elTetris.board = board;
 	const
@@ -138,19 +144,29 @@ api.on('data', ({
 			? 'act' + (rotations > 1
 				? `(${rotations})`
 				: '')
-			: '';
-
-	command = [
-		...rotationsActions === ''
-			? []
-			: [ rotationsActions, ],
-		...moveActions,
-		'DOWN',
-	].join(',');
+			: '',
+		command = [
+			...rotationsActions === ''
+				? []
+				: [ rotationsActions, ],
+			...moveActions,
+			'DOWN',
+		].join(',');
 
 	wssClients.forEach(ws => {
 		// Display the future in web debugger.
-		ws.send(JSON.stringify(elTetris.dumpBoard()));
+		ws.send(JSON.stringify({
+			local: {
+				debuggerClients: wssClients.size,
+			},
+
+			serverFrame: data,
+
+			board: {
+				old: oldBoard,
+				new: elTetris.dumpBoard(),
+			},
+		}));
 	});
 
 	console.log('Sending command:', command);

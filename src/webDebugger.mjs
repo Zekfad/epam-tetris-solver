@@ -38,20 +38,28 @@ class WS {
 	}
 	openWS(apiEndpoint = this.apiEndpoint) {
 		const ws = new WebSocket(apiEndpoint);
-		ws.onopen = this.onOpen.bind(this);
-		ws.onclose = this.onClose.bind(this);
+		ws.onopen = this._onOpen.bind(this);
+		ws.onclose = this._onClose.bind(this);
 		ws.onmessage = this._onData.bind(this);
 		ws.onerror = this.onError.bind(this);
 		return ws;
 	}
-	onOpen() {
+	_onOpen(...args) {
+		this.onOpen
+			.bind(this)
+			.call(this, ...args);
 		console.log('API connected.');
 	}
-	onClose() {
+	onOpen() { } // Overload me
+	_onClose(...args) {
+		this.onClose
+			.bind(this)
+			.call(this, ...args);
 		console.log('API disconnected.');
 		console.log('Reconnecting to API.');
 		this.ws = this.openWS();
 	}
+	onClose() { } // Overload me
 	_onData(...args) {
 		this.onData
 			.bind(this)
@@ -72,12 +80,41 @@ class WS {
 	}
 }
 
-const ws = new WS('ws://localhost:801/ws');
+const
+	ws = new WS('ws://localhost:801/ws'),
+	ansiUp = new AnsiUp(), // eslint-disable-line no-undef
+	logWindow = document.getElementById('log'),
+	colorInspect = data => inspect( // eslint-disable-line no-undef
+		data,
+		{ colors: true, }
+	);
+
+ws.onOpen = () => {
+	logWindow.innerHTML = 'CONNECTED';
+};
 
 ws.onData = event => {
-	const dump = JSON.parse(event.data);
-	elTetris.loadDump(dump);
+	const {
+		local,
+		serverFrame,
+		board,
+	} = JSON.parse(event.data);
+	elTetris.loadDump(board.new);
 	renderer.draw(elTetris.board);
+	logWindow.innerHTML = ansiUp.ansi_to_html(`
+- Local -
+Attached web debuggers: ${local.debuggerClients}
+
+- Remote -
+Latest server frame:
+
+${colorInspect(serverFrame)}
+	`.trim());
+
+};
+
+ws.onClose = () => {
+	logWindow.innerHTML = 'DISCONNECTED';
 };
 
 renderer.draw(elTetris.board);
