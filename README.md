@@ -15,6 +15,9 @@ Create `.env` file with following content:
 USER=YOUR_USER
 TOKEN=YOUR_CODE
 GAME=tetris
+HTTP_SERVER_HOST=::
+HTTP_SERVER_PORT=8080
+API_HOST=ws://codebattle2020.westeurope.cloudapp.azure.com/codenjoy-contest/ws
 ```
 
 ## Start
