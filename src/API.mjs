@@ -23,12 +23,11 @@ import WebSocket from 'ws';
 
 
 class API extends EventEmitter {
-	constructor(user, token, game = 'tetris') {
+	constructor(user, token, game = 'tetris', host = 'ws://codebattle2020.westeurope.cloudapp.azure.com/codenjoy-contest/ws') {
 		super();
 		Object.assign(this, {
-			apiEndpoint: 'ws://codebattle2020.westeurope.cloudapp.azure.com/codenjoy-contest/ws' +
-				`?user=${user}&code=${token}&gameName=${game}`,
-			ws: null,
+			apiEndpoint: `${host}?user=${user}&code=${token}&gameName=${game}`,
+			ws         : null,
 		});
 		this.ws = this.openWS();
 	}

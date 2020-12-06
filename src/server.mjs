@@ -22,14 +22,20 @@ import env from 'dotenv';
 
 import API from './API.mjs';
 import ElTetris from './ElTetris.mjs';
-import { wssClients, } from './httpServer.mjs';
+import { server, wssClients, } from './httpServer.mjs';
 import { piecesMap, } from './pieces.mjs';
 
 
 const
 	boardSize = { width: 18, height: 18, },
 	config = env.config().parsed,
-	api = new API(config.USER, config.TOKEN),
+	api = new API(...[
+		config.USER,
+		config.TOKEN,
+		...config.API_HOST
+			? [ config.API_HOST, ]
+			: [],
+	]),
 	elTetris = new ElTetris(boardSize.width, boardSize.height);
 
 
@@ -64,6 +70,17 @@ const offsetsMap = {
 		T: 1,
 	};
 /* eslint-enable */
+
+if (config.HTTP_SERVER_PORT) {
+	console.log('Starting debugger server...');
+	server.listen({
+		port: config.HTTP_SERVER_PORT || 8080,
+		host: config.HTTP_SERVER_HOST || '127.0.0.1',
+	}, () => {
+		console.log(`Debugger server started on ${config.HTTP_SERVER_HOST}:${config.HTTP_SERVER_PORT}`);
+	});
+}
+
 function stringToDump(string) {
 	const rows = [];
 	for (let i = 0; i < 18; i++) {
@@ -172,3 +189,4 @@ api.on('data', data => {
 	console.log('Sending command:', command);
 	api.send(command);
 });
+

@@ -80,7 +80,7 @@ class WS {
 }
 
 const
-	ws = new WS('ws://localhost:801/ws'),
+	ws = new WS(`ws://${window.location.host}/ws`),
 	ansiUp = new AnsiUp(), // eslint-disable-line no-undef
 	logWindow = document.getElementById('log'),
 	colorInspect = data => inspect( // eslint-disable-line no-undef

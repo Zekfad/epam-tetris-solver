@@ -24,7 +24,8 @@ import { parse, } from 'url';
 import WebSocket from 'ws';
 
 
-const server = createServer(
+const
+	server = createServer(
 		(request, response) => {
 			var path = './src' + request.url.slice(
 				0,
@@ -59,15 +60,13 @@ const server = createServer(
 				response.end(content);
 			}
 		}
-	)
-		.listen(801, () => {
-			console.log('Server running on port 801...');
-		}),
+	),
 	wss = new WebSocket.Server({ noServer: true, }),
 	wssClients = new Set();
 
 wss.on('connection', (ws) => {
 	wssClients.add(ws);
+	console.log(`New debugger connection (total: ${wssClients.size}).`);
 
 	ws.on('message', (message) => {
 		console.log('received: %s', message);
@@ -75,6 +74,7 @@ wss.on('connection', (ws) => {
 
 	ws.on('close', () => {
 		wssClients.delete(ws);
+		console.log(`Debugger connection closed (total: ${wssClients.size}).`);
 	});
 });
 
